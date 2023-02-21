@@ -3,19 +3,22 @@ from typing import Text
 import pyttsx3                                                                          #pip install pyttsx3
 import datetime                                                                         #pip install datetime
 import googletrans                                                                      #pip install googletrans
-import speech_recognition as sr                                                         #pip install speech_recgnition
+import speech_recognition as sr                                                         #pip install SpeechRecognition
 import wikipedia                                                                        #pip install wikipedia
 import webbrowser
 import random
 import os
 import smtplib
 import time
-#import pyautogui                                                                       #pip install pyautogui
 
 
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
 engine.setProperty('voice',voices[1].id)
+rate = engine.getProperty('rate')   # getting details of current speaking rate
+engine.setProperty('rate', 170)
+
+
 
 #text to speech
 def speak(audio):
@@ -23,8 +26,8 @@ def speak(audio):
     engine.runAndWait()
 
 speak("Initializing Virtual Assistent...")
-speak("i am Virtual Assistent")
-speak("who are you, please enter your name")
+
+speak("Before we get started, may I have your name please?")
 
 
 #entering name
@@ -45,46 +48,31 @@ def wish():
     else:
         t = ' Good Evening'
 
-    speak(('hello ') + (a) + (t))
+    speak(("hello") + (a) + (t))
     speak(f'it\'s {current_t}')
-    print("it's " + current_t)
+    #print("it's " + current_t)
 
-    speak(" please tell me how can i help you")
+    speak("I'm your virtual assistant, ready to help you with whatever you need. How may I assist you today?")
 
 
 #to convert voice into text
 def takecommand():
+
     r = sr.Recognizer()
     with sr.Microphone() as source:
+        speak("Listening...")
         print("Listening...")
-        speak("i am Listening...")
-        r.pause_threshold = 1
-        audio = r.listen(source, timeout=1, phrase_time_limit=5)
+        audio = r.listen(source)
+
     try:
-        print("Recoginsing...")
+        speak("Recoginsing...")
         query = r.recognize_google(audio,language='en-in')
-        print(f"user said: {query}\n")
+        speak(f"{a} said: {query}\n")
 
     except Exception as e:
-        speak("Say that again please....")
+        ("Say that again please....")
         return "None"
     return query
-
-#email function
-def sendEmail(to, content):
-    speak("Enter your  mail id")
-    M = input('Enter your mail id : ')
-    speak("Enter your password")
-    P = input('Enter your password : ')
-    speak("Enter reciever mail id again please ")
-    R = input('Enter reciever mail id again : ')
-    
-    server = smtplib.SMTP('smtp.gmail.com',587)
-    server.ehlo()
-    server.starttls()
-    server.login(M, P)
-    server.sendmail(R, to, content)
-    server.close()
 
 
 #task performing functions
@@ -111,26 +99,13 @@ while True:
         webbrowser.open("reddit.com")
 
     elif "music" in query:
-        songs_dir = "C:\\songs"
+        songs_dir = "C:\\music"
         songs = os.listdir(songs_dir)
         os.startfile(os.path.join(songs_dir, songs[0]))
 
     elif "time" in query:
         strTime = datetime.datetime.now().strftime("%H:%M:%S")
         speak(f"{a} ..., the time is {strTime}")
-
-    elif "email" in query or "mail" in query:
-        try:
-            speak("please type what should I send")
-            content = input("")
-            speak("enter mail id or receiver")
-            print("Enter mail id of reveiver : ")
-            to = input("")
-            sendEmail(to, content)
-            speak("Email has been sent successfully")
-
-        except Exception as e:
-            print(e)
 
     elif "open browser" in query:
         speak(random.choice(["Opening Browser...","Launching Browser..."]))
@@ -145,12 +120,12 @@ while True:
         webbrowser.open(query)
 
     elif "shutdown" in query:
-        print("shutting down")
+        speak("shutting down")
         os.system('shutdown -s')
+    
+    elif query == 'you can go now' or query == 'you can stop now':
+        speak("ok, i am going now but if you need my help then start me, i will be there for you to help")
+        break
 
 
-        
 
-    elif "stop" in query or "you can go" in query or "sleep" in query:
-        speak("okh... " + (a) + " i am going to sleep now")
-        exit()
